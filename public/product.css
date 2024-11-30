@@ -1,0 +1,440 @@
+body{
+    margin: 0;
+    padding: 0;
+    font-family: 'Playfair Display', serif;
+    color: #333;}
+.navbar {
+    position:fixed;
+    top: 0;
+    width: 100%;
+    padding: 20px 0px;
+    background: rgba(46, 45, 45, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    color: #fff;
+    z-index: 10;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 1200px;
+}
+
+.site-logo {
+    font-size: 24px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.auth-buttons .login, .auth-buttons .signup {
+    color: #fff;
+    text-decoration: none;
+}
+
+.signup {
+    background-color: #f1d8b1;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #333;
+}
+
+/* Search Button and Input */
+.search-button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.search-input {
+    display: none;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.search-input.visible {
+    display: inline-block;
+}
+
+/* Hamburger Menu Icon for Mobile */
+.hamburger-menu {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #fff;
+}
+
+/* Dropdown Menu for Mobile */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.dropdown-menu.open {
+    display: flex;
+}
+
+.dropdown-menu a, .dropdown-menu .search-button {
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.dropdown-menu a.signup {
+    background-color: #f1d8b1;
+    border-radius: 20px;
+    color: #333;
+}
+
+/* Responsive Styles */
+@media (max-width: 450px) {
+    .nav-links, .auth-buttons, .search-button {
+        display: none;
+    }
+
+    .hamburger-menu {
+        display: block;
+    }
+
+    .dropdown-menu .search-button {
+        display: block;
+    }
+
+    .search-input {
+        width: 100%;
+        margin-top: 5px;
+    }
+}
+/* User Menu and Dropdown Styling */
+.user-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.user-name {
+    background-color: #f1d8b1;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #333;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: capitalize;
+    transition: background-color 0.3s;
+}
+
+.user-name:hover {
+    background-color: #e0c28c;
+}
+
+/* Dropdown Menu for Mobile */
+/* Dropdown Menu for Mobile */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 70px;
+    right: 10px;
+    filter: blur(8);
+    background: rgba(0, 0, 0, 0.8);
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 8px;
+    z-index: 20;
+}
+
+.dropdown-menu.open {
+    display: flex;
+}
+
+
+.dropdown-menu a, .dropdown-menu .search-button {
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.dropdown-menu a.signup {
+    background-color: #f1d8b1;
+    border-radius: 20px;
+    color: #333;
+}
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: rgba(5, 5, 5, 0.2);
+    filter: blur(0.9);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 5px;
+    min-width: 200px;
+    z-index: 10;
+}
+
+.dropdown-menu li {
+    padding: 10px 15px;
+    cursor: pointer;
+    text-align: left;
+    transition: ease-in 8ms;
+}
+
+.dropdown-menu li:hover {
+    background-color: rgba(27, 27, 27, 0.5);
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.user-button {
+    background: none;
+    border: none;
+    color: white;
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 17px;
+    cursor: pointer;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+}
+
+.user-button img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* Avatar image */
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.product-page {
+    padding: 120px 20px 50px 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.product-details {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.product-image-container img {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-info {
+    max-width: 500px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-info h1 {
+    font-size: 28px;
+    color: #333;
+}
+
+.product-info p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.product-description {
+    margin: 20px 0;
+    font-size: 16px;
+    color: #777;
+    font-style: italic;
+}
+
+.product-actions {
+    display: flex;
+    gap: 20px;
+}
+
+.btn-add-to-cart, .btn-buy-now {
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-add-to-cart {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-buy-now {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.btn-add-to-cart:hover {
+    background-color: #0056b3;
+}
+
+.btn-buy-now:hover {
+    background-color: #218838;
+}
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 768px) {
+    .product-page {
+        padding: 120px 10px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .product-details {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .product-image-container img {
+        max-width: 100%;
+    }
+
+    .navbar {
+        padding: 15px 20px;
+    }
+
+    .hamburger-menu {
+        display: block;
+    }
+
+    .dropdown-menu.open {
+        display: flex;
+    }
+}
+
+footer {
+    background-color: #333;
+    /* Dark background for contrast */
+    color: #f0f0f0;
+    /* Light text for readability */
+    text-align: center;
+    padding: 20px 10px;
+    font-family: 'Playfair Display', serif;
+    /* Matches your site font */
+    font-size: 14px;
+    position: relative;
+    bottom: 0;
+}
+
+footer p {
+    margin: 10px 0;
+    /* Adds some spacing around the text */
+    font-size: 16px;
+    /* Slightly larger for readability */
+}
+
+footer .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    /* Spacing between social links */
+    margin-top: 10px;
+}
+
+footer .social-links a {
+    color: #f0f0f0;
+    /* Light color to match text */
+    text-decoration: none;
+    /* Removes underline */
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+footer .social-links a:hover {
+    color: #ff9800;
+    /* Accent color for hover effect */
+}
+
+@media (max-width: 768px) {
+    footer {
+        font-size: 12px;
+    }
+
+    footer .social-links a {
+        font-size: 16px;
+        /* Adjust font size for smaller screens */
+    }
+}
+/* CSS */
+@media (max-width: 700px) {
+    .nav-actions > #auth-section {
+        display: none; /* Hide auth section in navbar */
+    }
+
+    #mobile-menu > #auth-section {
+        display: block; /* Show auth section in the dropdown */
+    }
+}
+
+@media (min-width: 701px) {
+    .nav-actions > #auth-section {
+        display: flex; /* Ensure auth section shows in navbar */
+    }
+
+    #mobile-menu > #auth-section {
+        display: none; /* Hide it in the dropdown */
+    }
+}

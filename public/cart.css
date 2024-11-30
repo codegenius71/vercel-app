@@ -1,0 +1,530 @@
+body {
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    color: #333;
+}
+
+/* Navbar Styling */
+.navbar {
+    position:fixed;
+    top: 0;
+    width: 100%;
+    padding: 20px 0px;
+    background: rgba(46, 45, 45, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    color: #fff;
+    z-index: 10;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 1200px;
+}
+
+.site-logo {
+    font-size: 24px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.auth-buttons .login, .auth-buttons .signup {
+    color: #fff;
+    text-decoration: none;
+}
+
+.signup {
+    background-color: #f1d8b1;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #333;
+}
+
+/* Search Button and Input */
+.search-button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.search-input {
+    display: none;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.search-input.visible {
+    display: inline-block;
+}
+
+/* Hamburger Menu Icon for Mobile */
+.hamburger-menu {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #fff;
+}
+
+/* Dropdown Menu for Mobile */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.dropdown-menu.open {
+    display: flex;
+}
+
+.dropdown-menu a, .dropdown-menu .search-button {
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.dropdown-menu a.signup {
+    background-color: #f1d8b1;
+    border-radius: 20px;
+    color: #333;
+}
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: rgba(5, 5, 5, 0.2);
+    filter: blur(0.9);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 5px;
+    min-width: 200px;
+    z-index: 10;
+}
+
+.dropdown-menu li {
+    padding: 10px 15px;
+    cursor: pointer;
+    text-align: left;
+    transition: ease-in 8ms;
+}
+
+.dropdown-menu li:hover {
+    background-color: rgba(27, 27, 27, 0.5);
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.user-button {
+    background: none;
+    border: none;
+    color: white;
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 17px;
+    cursor: pointer;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+}
+
+.user-button img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* Avatar image */
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+/* Responsive Styles */
+@media (max-width: 450px) {
+    .nav-links, .auth-buttons, .search-button {
+        display: none;
+    }
+
+    .hamburger-menu {
+        display: block;
+    }
+
+    .dropdown-menu .search-button {
+        display: block;
+    }
+
+    .search-input {
+        width: 100%;
+        margin-top: 5px;
+    }
+}
+
+/* General Page Styling */
+.cart-page-body {
+    font-family: 'Playfair Display', serif;
+    color: #333;
+    background-color: #f3f4f6;
+    padding-top: 80px; /* Offset for the fixed navbar */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Cart Header: Title, Remove Selected, and Checkout Button */
+.cart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px 0;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.cart-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.remove-selected-btn{
+    background-color: #e74c3c; /* Red background */
+    color: #fff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 180px; /* Same width for both buttons */
+    height: 45px; /* Same height for both buttons */
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+
+}
+.checkout-btn {
+    background-color: #27ae60; /* Red background */
+    color: #fff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 180px; /* Same width for both buttons */
+    height: 45px; /* Same height for both buttons */
+    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover Effect */
+.remove-selected-btn:hover{
+
+    background-color: #c0392b; /* Darker red on hover */
+}
+.checkout-btn:hover{
+    background-color: #229954;
+}
+
+/* Total Price Display in Checkout Button */
+#total-price {
+    /* font-size: 1rem; */
+    color: #fff;
+}
+
+/* Cart Container */
+.cart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 90%;
+    max-width: 1200px;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Cart Item Styling */
+.cart-item:nth-child(n) {
+    display: flex;
+    align-items: center;
+    background-color: #fafafa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    justify-content: space-around;
+}
+
+.cart-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Checkbox for Selecting Items */
+.item-checkbox {
+    margin-right: 15px;
+    transform: scale(1.2);
+    accent-color: #333;
+}
+
+/* Item Image */
+.cart-item img {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    margin-right: 20px;
+    transition: transform 0.2s ease;
+}
+
+.cart-item img:hover {
+    transform: scale(1.05);
+}
+
+/* Item Details (Name, Price, Quantity) */
+.cart-item h3 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+
+.cart-item p {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 8px 0;
+}
+
+/* Quantity Control Buttons */
+.quantity-btn {
+    border: none;
+    background-color: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 0 8px;
+    transition: background-color 0.2s ease;
+}
+
+.quantity-btn:hover {
+    background-color: #555;
+}
+
+/* Responsive Styles */
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .cart-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .checkout-btn,
+    .remove-selected-btn {
+        width: 100%;
+        max-width: none;
+        display: flex;
+        justify-content: center;
+    }
+
+    .cart-title {
+        font-size: 2.2rem;
+    }
+
+    /* Adjust Cart Items for Tablet Screens */
+    .cart-item {
+        flex-direction: column;  /* Stack items vertically */
+        align-items: flex-start; /* Align items to the left */
+        gap: 15px; /* Add spacing between content */
+    }
+
+    .cart-item img {
+        width: 120px; /* Adjust size of the image */
+        height: 120px;
+        margin-right: 0;
+    }
+
+    /* Increase gap between image and content on smaller screens */
+    .cart-item .item-details {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 450px) {
+    .cart-title {
+        font-size: 1.8rem;
+    }
+
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px; /* Reduced gap for smaller screens */
+    }
+
+    .cart-item img {
+        width: 100px; /* Adjust image size for very small screens */
+        height: 100px;
+    }
+
+    /* Ensure that the cart item content doesn't overflow */
+    .cart-item h3 {
+        font-size: 1.2rem;
+        word-wrap: break-word; /* Break long words */
+    }
+
+    .cart-item p {
+        font-size: 1rem; /* Adjust font size for readability */
+    }
+
+    /* Stack the quantity control buttons for small screens */
+    .quantity-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* Adjust button sizes for mobile */
+    .quantity-btn {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+}
+@media screen and (max-width: 768px) {
+
+    .navbar {
+        padding: 15px 20px;
+    }
+
+    .hamburger-menu {
+        display: block;
+    }
+
+    .dropdown-menu.open {
+        display: flex;
+    }
+}
+
+footer {
+    background-color: #333;
+    /* Dark background for contrast */
+    color: #f0f0f0;
+    /* Light text for readability */
+    text-align: center;
+    padding: 20px 10px;
+    font-family: 'Playfair Display', serif;
+    /* Matches your site font */
+    font-size: 14px;
+    position: relative;
+    bottom: 0;
+}
+
+footer p {
+    margin: 10px 0;
+    /* Adds some spacing around the text */
+    font-size: 16px;
+    /* Slightly larger for readability */
+}
+
+footer .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    /* Spacing between social links */
+    margin-top: 10px;
+}
+
+footer .social-links a {
+    color: #f0f0f0;
+    /* Light color to match text */
+    text-decoration: none;
+    /* Removes underline */
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+footer .social-links a:hover {
+    color: #ff9800;
+    /* Accent color for hover effect */
+}
+
+@media (max-width: 768px) {
+    footer {
+        font-size: 12px;
+    }
+
+    footer .social-links a {
+        font-size: 16px;
+        /* Adjust font size for smaller screens */
+    }
+}
+/* CSS */
+@media (max-width: 700px) {
+    .nav-actions > #auth-section {
+        display: none; /* Hide auth section in navbar */
+    }
+
+    #mobile-menu > #auth-section {
+        display: block; /* Show auth section in the dropdown */
+    }
+}
+
+@media (min-width: 701px) {
+    .nav-actions > #auth-section {
+        display: flex; /* Ensure auth section shows in navbar */
+    }
+
+    #mobile-menu > #auth-section {
+        display: none; /* Hide it in the dropdown */
+    }
+}

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Refined Elegance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="products.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="/" class="site-logo">Refined Elegance</a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/products">Products</a>
+                <input type="text" class="search-input" placeholder="Search...">
+            </nav>
+            <div class="nav-actions">
+                <div class="auth-buttons" id="auth-section">
+                    <!-- Login/Dropdown will be injected dynamically -->
+                </div>
+                <div class="hamburger-menu" onclick="toggleMenu()">☰</div>
+                <div class="dropdown-menu" id="mobile-menu">
+                    <a href="/">Home</a>
+                    <a href="/products">Products</a>
+                    <div class="auth-buttons" id="auth-section">
+                        <!-- Login/Dropdown will be injected dynamically -->
+
+                    </div>
+
+                </div>
+            </div>
+    </header>
+
+    <!-- Product Catalog Section -->
+    <section id="products" class="product-section">
+        <h2>Our Products</h2>
+        <div class="categories-container">
+            <!-- Category selector will be inserted dynamically -->
+        </div>
+        <div id="product-list" class="product-list">
+            <!-- Products will be dynamically loaded here -->
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; 2024 Refined Elegance. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#">Instagram</a>
+            <a href="#">Facebook</a>
+            <a href="#">Twitter</a>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Check Login Status and Inject Login/Logout UI
+        function checkLoginStatus() {
+    const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+    const userFirstName = localStorage.getItem('userFirstName') || 'User'; // Fallback if undefined
+    const authSectionNavbar = document.querySelector('.nav-actions #auth-section');
+    const authSectionDropdown = document.querySelector('#mobile-menu #auth-section');
+
+    let authContent = '';
+
+    if (userLoggedIn) {
+        authContent = `
+            <div class="dropdown">
+                <button class="user-button" onclick="toggleDropdown(event)">
+                    <img src="/images/avatar.jpeg" alt="User Avatar" class="user-avatar">
+                    ${userFirstName}
+                </button>
+                <ul class="dropdown-menu">
+                    <li onclick="redirectTo('/cart')">Cart</li>
+                    <li onclick="logoutUser()">Logout</li>
+                </ul>
+            </div>
+        `;
+    } else {
+        authContent = `
+            <a href="/sign-in" class="login">Log in</a>
+            <a href="/signup" class="signup">Sign up</a>
+        `;
+    }
+
+    // Inject content into both sections
+    authSectionNavbar.innerHTML = authContent;
+    authSectionDropdown.innerHTML = authContent;
+}
+
+        function logoutUser() {
+            localStorage.removeItem('userLoggedIn');
+            localStorage.removeItem('userFirstName');
+            window.location.href = '/';
+        }
+
+        function redirectTo(path) {
+            window.location.href = path;
+        }
+        function toggleDropdown() {
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        }
+        document.addEventListener('click', (event) => {
+            const dropdown = document.querySelector('.dropdown');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            if (dropdown && dropdownMenu) {
+                if (!dropdown.contains(event.target)) {
+                    // If the click is outside the dropdown, close the dropdown menu
+                    dropdownMenu.style.display = 'none';
+                }
+            }
+        });
+
+
+        // Toggle dropdown menu visibility
+        // Dropdown toggle function
+        document.addEventListener("DOMContentLoaded", function () {
+            const dropdownButton = document.querySelector('.dropdown');
+            const dropdownMenu = dropdownButton.querySelector('.dropdown-menu');
+
+            // Toggle the dropdown visibility on click (for desktop)
+            dropdownButton.addEventListener('click', function (event) {
+                event.stopPropagation(); // Prevent click from closing dropdown immediately
+                dropdownMenu.classList.toggle('open');
+            });
+
+            // Close the dropdown if clicked outside (for desktop and mobile)
+            document.addEventListener('click', function (event) {
+                if (!dropdownButton.contains(event.target)) {
+                    dropdownMenu.classList.remove('open');
+                }
+            });
+
+            // Add mobile support: toggle the dropdown on button click
+            const userMenu = document.querySelector('.user-menu');
+            const mobileDropdown = userMenu.querySelector('.dropdown-menu');
+
+            userMenu.addEventListener('click', function (event) {
+                event.stopPropagation();  // Stop the dropdown from closing immediately
+                mobileDropdown.classList.toggle('open');
+            });
+
+            // Close dropdown on click outside
+            document.addEventListener('click', function (event) {
+                if (!userMenu.contains(event.target)) {
+                    mobileDropdown.classList.remove('open');
+                }
+            });
+        });
+
+        // Load Products
+        async function loadProducts() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const category = urlParams.get('category'); // Get category from URL
+
+                const response = await fetch('/api/items'); // API endpoint to fetch all products
+                const items = await response.json();
+
+                let filteredItems = items;
+                if (category) {
+                    filteredItems = items.filter(item => item.category === category); // Filter by selected category
+                }
+
+                displayProducts(filteredItems);
+                updateCategoryFilter(items); // Populate category filter
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Display Products
+        function displayProducts(items) {
+            const productListContainer = document.getElementById('product-list');
+            productListContainer.innerHTML = ''; // Clear previous products
+
+            items.forEach(item => {
+                const productCard = `
+                    <div class="product-card">
+                        <a href="/product/${item.slug}">
+                            <img src="${item.imageURL}" alt="${item.name}">
+                            <h3>${item.name}</h3>
+                            <p>₹${item.price}</p>
+                        </a>
+                        <button class="add-to-cart" data-id="${item._id}" data-name="${item.name}" data-price="${item.price}" data-image="${item.imageURL}">
+                            Add to Cart
+                        </button>
+                    </div>
+                `;
+                productListContainer.innerHTML += productCard;
+            });
+
+            // Rebind add-to-cart buttons after products are loaded
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', addToCart);
+            });
+        }
+
+        // Add to Cart
+        function addToCart(event) {
+            const userLoggedIn = localStorage.getItem('userLoggedIn');
+            if (!userLoggedIn) {
+                window.location.href = '/sign-in';
+                return;
+            }
+
+            const button = event.target;
+            const itemId = button.getAttribute('data-id');
+            const itemName = button.getAttribute('data-name');
+            const itemPrice = button.getAttribute('data-price');
+            const itemImage = button.getAttribute('data-image');
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingItem = cart.find(item => item.id === itemId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id: itemId, name: itemName, price: parseFloat(itemPrice), image: itemImage, quantity: 1 });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+
+            // Change button text to "Added to Cart"
+            button.textContent = "Added to Cart";
+            button.disabled = true; // Optionally disable the button to prevent multiple clicks
+        }
+
+        // Update Cart Count in Navbar
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartItemCount = document.getElementById('cart-item-count');
+            if (cartItemCount) cartItemCount.textContent = itemCount;
+        }
+
+        // Category Filter
+        function updateCategoryFilter(items) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentCategory = urlParams.get('category'); // Get current category from URL
+            const categories = [...new Set(items.map(item => item.category))]; // Get unique categories
+
+            const categoryContainer = document.querySelector('.categories-container');
+            categoryContainer.innerHTML = `
+        <select id="category-filter">
+            <option value="" ${!currentCategory ? 'selected' : ''}>All Categories</option>
+            ${categories
+                    .map(category => `
+                    <option value="${category}" ${currentCategory === category ? 'selected' : ''}>
+                        ${category}
+                    </option>
+                `)
+                    .join('')}
+        </select>
+    `;
+
+            // Add event listener to filter products by category
+            document.getElementById('category-filter').addEventListener('change', (e) => {
+                const selectedCategory = e.target.value;
+                if (selectedCategory) {
+                    window.location.href = `/products?category=${selectedCategory}`;
+                } else {
+                    window.location.href = '/products';
+                }
+            });
+        }
+        // Call this function when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts(); // Load products and categories on page load
+            checkLoginStatus(); // Check user login status
+            updateCartCount(); // Update cart count in UI
+        });
+        function toggleMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('open');
+        }
+
+    </script>
+</body>
+
+</html>

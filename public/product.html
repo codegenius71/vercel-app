@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <title>{{title}}</title> <!-- Dynamic title -->
+    <link rel="stylesheet" href="/product.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="/" class="site-logo">Refined Elegance</a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/products">Products</a>
+                <input type="text" class="search-input" placeholder="Search...">
+            </nav>
+            <div class="nav-actions">
+                <div class="auth-buttons" id="auth-section">
+                    <!-- Login/Dropdown will be injected dynamically -->
+                </div>
+                <div class="hamburger-menu" onclick="toggleMenu()">☰</div>
+                <div class="dropdown-menu" id="mobile-menu">
+                    <a href="/">Home</a>
+                    <a href="/products">Products</a>
+                    <div class="auth-buttons" id="auth-section">
+                        <!-- Login/Dropdown will be injected dynamically -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Product Details Section -->
+    <div class="product-page">
+        <div class="product-details">
+            <div class="product-image-container">
+                <img id="product-image" src="{{imageURL}}" alt="Product Image">
+            </div>
+            <div class="product-info">
+                <h1 id="product-name">{{name}}</h1>
+                <p id="product-price">RS {{price}}</p>
+                <p class="product-description">
+                    <!-- Product description here -->
+                </p>
+                <div class="product-actions">
+                    <button id="add-to-cart-btn" class="btn-add-to-cart">Add to Cart</button>
+                    <button id="buy-now-btn" class="btn-buy-now">Buy Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to check login status and update UI
+        async function handleLogin() {
+            const response = await fetch('/login', { /* your login request details */ });
+            const data = await response.json();
+            if (data.success) {
+                // Login is successful
+                localStorage.setItem('userLoggedIn', 'true');
+                localStorage.setItem('userFirstName', data.firstName);
+                // Optionally, you can also store other info such as token or avatar
+                window.location.href = '/'; // Redirect to home page
+            } else {
+                // Handle login failure
+                alert('Login failed');
+            }
+        }
+
+        function checkLoginStatus() {
+            const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+            const userFirstName = localStorage.getItem('userFirstName') || 'User'; // Fallback if undefined
+            const authSectionNavbar = document.querySelector('.nav-actions #auth-section');
+            const authSectionDropdown = document.querySelector('#mobile-menu #auth-section');
+
+            let authContent = '';
+
+            if (userLoggedIn) {
+                authContent = `
+            <div class="dropdown">
+                <button class="user-button" onclick="toggleDropdown(event)">
+                    <img src="/images/avatar.jpeg" alt="User Avatar" class="user-avatar">
+                    ${userFirstName}
+                </button>
+                <ul class="dropdown-menu">
+                    <li onclick="redirectTo('/cart')">Cart</li>
+                    <li onclick="logoutUser()">Logout</li>
+                </ul>
+            </div>
+        `;
+            } else {
+                authContent = `
+            <a href="/sign-in" class="login">Log in</a>
+            <a href="/signup" class="signup">Sign up</a>
+        `;
+            }
+
+            // Inject content into both sections
+            authSectionNavbar.innerHTML = authContent;
+            authSectionDropdown.innerHTML = authContent;
+        }
+
+
+        // Toggle dropdown visibility on click
+        function toggleDropdown() {
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        }
+
+
+
+        function logoutUser() {
+            localStorage.removeItem('userLoggedIn');
+            localStorage.removeItem('userFirstName');
+            localStorage.removeItem('userAvatar');
+            window.location.href = '/';
+        }
+
+        function redirectTo(path) {
+            window.location.href = path;
+        }
+        // Add to Cart Button functionality
+        document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+            if (!isUserLoggedIn()) {
+                alert('You need to log in to add items to your cart.');
+                window.location.href = '/sign-in';
+                return;
+            }
+            const product = getProductDetails();
+            addToCart(product);
+        });
+
+        // Buy Now Button functionality
+        document.getElementById('buy-now-btn').addEventListener('click', () => {
+            if (!isUserLoggedIn()) {
+                alert('You need to log in to buy this product.');
+                window.location.href = '/sign-in';
+                return;
+            }
+            const product = getProductDetails();
+            addToCart(product); // Optional: You can also add it to the cart here
+            localStorage.setItem('checkoutProduct', JSON.stringify(product)); // Store the product details for checkout
+            window.location.href = '/checkout'; // Redirect to checkout page
+        });
+
+        // Check if the user is logged in
+        function isUserLoggedIn() {
+            return localStorage.getItem('userLoggedIn') === 'true';
+        }
+
+        // Get product details from the page
+        function getProductDetails() {
+            return {
+                name: document.getElementById('product-name').textContent,
+                price: parseFloat(document.getElementById('product-price').textContent.replace('RS', '').trim()),
+                image: document.getElementById('product-image').src
+            };
+        }
+
+        // Add product to the cart
+        function addToCart(product) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            const existingItem = cart.find(item => item.name === product.name);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                product.quantity = 1;
+                cart.push(product);
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+        }
+
+        // Update cart count in the UI
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartItemCount = document.getElementById('cart-item-count');
+            if (cartItemCount) cartItemCount.textContent = itemCount;
+        }
+
+        // Mobile Menu Toggle
+        function toggleMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('open');
+        }
+
+        // Logout function
+        function logoutUser() {
+            localStorage.removeItem('userLoggedIn');
+            localStorage.removeItem('userFirstName');
+            window.location.href = '/';
+        }
+
+        // Redirect to a specific page
+        function redirectTo(path) {
+            window.location.href = path;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginStatus();
+            updateCartCount();
+        });
+
+        // Dropdown toggle
+        function toggleDropdown() {
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        document.addEventListener('click', (event) => {
+            const dropdown = document.querySelector('.dropdown');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            if (dropdown && dropdownMenu) {
+                if (!dropdown.contains(event.target)) {
+                    // If the click is outside the dropdown, close the dropdown menu
+                    dropdownMenu.style.display = 'none';
+                }
+            }
+        });
+        //    mobile listener 
+        document.addEventListener('click', function (event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+
+            // Check if the click is outside the menu and hamburger
+            if (!mobileMenu.contains(event.target) && !hamburgerMenu.contains(event.target)) {
+                mobileMenu.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+
+</html>

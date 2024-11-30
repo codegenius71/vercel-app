@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refined Elegance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Dropdown Styles */
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="/" class="site-logo">Refined Elegance</a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/products">Products</a>
+                <input type="text" class="search-input" placeholder="Search...">
+            </nav>
+            <div class="nav-actions">
+                <div class="auth-buttons" id="auth-section">
+                    <!-- Login/Dropdown will be injected dynamically -->
+                </div>
+                <div class="hamburger-menu" onclick="toggleMenu()">☰</div>
+                <div class="dropdown-menu" id="mobile-menu">
+                    <a href="/">Home</a>
+                    <a href="/products">Products</a>
+                    <div class="auth-buttons" id="auth-section">
+                        <!-- Login/Dropdown will be injected dynamically -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <h1>Step into Luxury</h1>
+                <p>Discover unmatched elegance and comfort in every pair.</p>
+                <a href="/products" class="cta-button">Shop Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Catalog Section -->
+    <!-- Product Catalog Section -->
+    <section id="products" class="product-section">
+        <h2>Our Collection</h2>
+        <div class="categories-container">
+            <!-- Categories will be dynamically inserted here -->
+            <button id="add-to-cart-btn" data-item-id="123" data-item-name="Product Name" data-item-price="100">
+                Add to Cart
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; 2024 Refined Elegance. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#">Instagram</a>
+            <a href="#">Facebook</a>
+            <a href="#">Twitter</a>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/items'); // API endpoint to fetch products
+                const items = await response.json();
+
+                const categories = categorizeProducts(items);
+                displayCategories(categories);
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        function categorizeProducts(items) {
+            const categories = {};
+
+            items.forEach((item) => {
+                if (!categories[item.category]) {
+                    categories[item.category] = [];
+                }
+                categories[item.category].push(item);
+            });
+
+            return categories;
+        }
+
+        // Function to handle carousel scrolling
+        function scrollCarousel(carouselId, direction) {
+            const carousel = document.getElementById(carouselId);
+            const cardWidth = carousel.querySelector('.product-card').offsetWidth + 10; // Adjust for card width + gap
+            const scrollAmount = direction * cardWidth; // Calculate scroll amount
+            carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' }); // Perform smooth scroll
+        }
+
+
+        // Function to dynamically display product categories with carousel
+        function displayCategories(categories) {
+            const container = document.querySelector('.categories-container');
+            container.innerHTML = ''; // Clear existing content
+
+            Object.keys(categories).forEach((category) => {
+                const categoryProducts = categories[category].slice(0, 8); // Maximum 8 products per category
+                const categoryDiv = document.createElement('div');
+                categoryDiv.classList.add('category-section');
+
+                categoryDiv.innerHTML = `
+            <div class="section-header">
+                <h3>${category}</h3>
+                <a href="/products?category=${encodeURIComponent(category)}" class="show-more">Show More</a>
+            </div>
+            <div class="carousel-container">
+                <div class="carousel" id="carousel-${category}">
+                    ${categoryProducts.map(createProductCard).join('')}
+                </div>
+            </div>
+        `;
+
+                container.appendChild(categoryDiv);
+            });
+
+            // Rebind add-to-cart buttons
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', addToCart);
+            });
+        }
+
+        // Function to generate HTML for each product card
+        function createProductCard(product) {
+            return `
+                <div class="product-card">
+                    <a href="/product/${product.slug}">
+                        <img src="${product.imageURL}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <p>Rs ${product.price}</p>
+                    </a>
+            <button class="add-to-cart" data-id="${product._id}" data-name="${product.name}" data-price="${product.price}" data-image="${product.imageURL}">
+                        Add to Cart
+                    </button>
+                </div>
+            `;
+        }
+
+        // Assuming you have a function to handle login
+        async function handleLogin() {
+            const response = await fetch('/login', { /* your login request details */ });
+            const data = await response.json();
+            if (data.success) {
+                // Login is successful
+                localStorage.setItem('userLoggedIn', 'true');
+                localStorage.setItem('userFirstName', data.firstName);
+                // Optionally, you can also store other info such as token or avatar
+                window.location.href = '/'; // Redirect to home page
+            } else {
+                // Handle login failure
+                alert('Login failed');
+            }
+        }
+
+        function checkLoginStatus() {
+    const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+    const userFirstName = localStorage.getItem('userFirstName') || 'User'; // Fallback if undefined
+    const authSectionNavbar = document.querySelector('.nav-actions #auth-section');
+    const authSectionDropdown = document.querySelector('#mobile-menu #auth-section');
+
+    let authContent = '';
+
+    if (userLoggedIn) {
+        authContent = `
+            <div class="dropdown">
+                <button class="user-button" onclick="toggleDropdown(event)">
+                    <img src="/images/avatar.jpeg" alt="User Avatar" class="user-avatar">
+                    ${userFirstName}
+                </button>
+                <ul class="dropdown-menu">
+                    <li onclick="redirectTo('/cart')">Cart</li>
+                    <li onclick="logoutUser()">Logout</li>
+                </ul>
+            </div>
+        `;
+    } else {
+        authContent = `
+            <a href="/sign-in" class="login">Log in</a>
+            <a href="/signup" class="signup">Sign up</a>
+        `;
+    }
+
+    // Inject content into both sections
+    authSectionNavbar.innerHTML = authContent;
+    authSectionDropdown.innerHTML = authContent;
+}
+
+
+        // Toggle dropdown visibility on click
+        function toggleDropdown() {
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        }
+
+
+
+        function logoutUser() {
+            localStorage.removeItem('userLoggedIn');
+            localStorage.removeItem('userFirstName');
+            localStorage.removeItem('userAvatar');
+            window.location.href = '/';
+        }
+
+        function redirectTo(path) {
+            window.location.href = path;
+        }
+
+        function updateCartCount() {
+            const cartItemCount = document.getElementById('cart-item-count');
+            cartItemCount.classList.add('bounce');
+            setTimeout(() => cartItemCount.classList.remove('bounce'), 500);
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+            if (cartItemCount) cartItemCount.textContent = itemCount;
+        }
+
+        // Call on page load
+
+
+        function addToCart(event) {
+            function triggerCartUpdatedEvent() {
+                const event = new CustomEvent('cartUpdated');
+                document.dispatchEvent(event);
+            }
+
+            console.log('Add to Cart button clicked');
+
+            const userLoggedIn = localStorage.getItem('userLoggedIn');
+            if (!userLoggedIn) {
+                console.log('User not logged in, redirecting to sign-in...');
+                window.location.href = '/sign-in';
+                return;
+            }
+
+            const button = event.target;
+            console.log('Button Data:', {
+                id: button.getAttribute('data-id'),
+                name: button.getAttribute('data-name'),
+                price: button.getAttribute('data-price'),
+                image: button.getAttribute('data-image'),
+            });
+
+            const itemId = button.getAttribute('data-id');
+            const itemName = button.getAttribute('data-name');
+            const itemPrice = button.getAttribute('data-price');
+            const itemImage = button.getAttribute('data-image');
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingItem = cart.find(item => item.id === itemId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id: itemId, name: itemName, price: parseFloat(itemPrice), image: itemImage, quantity: 1 });
+            }
+
+            console.log('Updated Cart:', cart);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            triggerCartUpdatedEvent(); // Notify other pages
+
+
+            // Update button state to indicate item was added
+            updateButtonState(button, true);
+            // Function to send the cart item to the server
+            async function sendCartToServer(cartItem) {
+                const token = localStorage.getItem('token'); // JWT token
+
+                try {
+                    const response = await fetch('/api/cart/add-to-cart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`, // Include JWT token in the header
+                        },
+                        body: JSON.stringify(cartItem),
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert('Item added to cart successfully');
+                    } else {
+                        alert(result.message || 'Failed to add item to cart');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Something went wrong');
+                }
+            }
+
+        }
+
+        // Function to update button state
+        function updateButtonState(button, isInCart) {
+            if (isInCart) {
+                button.textContent = 'Added to Cart';
+                button.classList.add('added-to-cart'); // Optional: Add a class for styling
+                button.disabled = true; // Disable the button
+            } else {
+                button.textContent = 'Add to Cart';
+                button.classList.remove('added-to-cart');
+                button.disabled = false;
+            }
+        }
+
+        // Check cart on page load and update buttons
+        // Function to update button state based on cart content
+        function updateButtonsOnPageLoad() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const buttons = document.querySelectorAll('.add-to-cart');
+
+            buttons.forEach(button => {
+                const itemId = button.getAttribute('data-id');
+                const isInCart = cart.some(item => item.id === itemId);
+                if (isInCart) {
+                    button.textContent = 'Added to Cart';
+                    button.disabled = true; // Disable the button
+                    button.classList.add('added-to-cart'); // Optional styling class
+                } else {
+                    button.textContent = 'Add to Cart';
+                    button.disabled = false;
+                    button.classList.remove('added-to-cart');
+                }
+            });
+        }
+
+        // Call this function on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            updateButtonsOnPageLoad();
+        });
+
+        // Call on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts(); // Load products into the catalog
+            checkLoginStatus(); // Check user login status
+            updateCartCount(); // Update cart count in UI
+            updateButtonsOnPageLoad(); // Update button states based on cart
+        });
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+            const cartItemCount = document.getElementById('cart-item-count');
+            if (cartItemCount) cartItemCount.textContent = itemCount;
+        }
+
+        function toggleSearch() {
+            document.querySelector('.search-input').classList.toggle('visible');
+        }
+
+        function toggleMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('open');
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            checkLoginStatus();
+            updateCartCount();
+        });
+        //    Account listener
+        document.addEventListener('click', (event) => {
+            const dropdown = document.querySelector('.dropdown');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            if (dropdown && dropdownMenu) {
+                if (!dropdown.contains(event.target)) {
+                    // If the click is outside the dropdown, close the dropdown menu
+                    dropdownMenu.style.display = 'none';
+                }
+            }
+        });
+        //    mobile listener 
+        document.addEventListener('click', function (event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+
+            // Check if the click is outside the menu and hamburger
+            if (!mobileMenu.contains(event.target) && !hamburgerMenu.contains(event.target)) {
+                mobileMenu.classList.remove('open');
+            }
+        });
+
+    </script>
+</body>
+
+</html>

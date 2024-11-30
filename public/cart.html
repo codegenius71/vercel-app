@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="/cart.css">
+</head>
+
+<body class="cart-page-body">
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="/" class="site-logo">Refined Elegance</a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/products">Products</a>
+                <input type="text" class="search-input" placeholder="Search...">
+            </nav>
+            <div class="nav-actions">
+                <div class="auth-buttons" id="auth-section">
+                    <!-- Login/Dropdown will be injected dynamically -->
+                </div>
+                <div class="hamburger-menu" onclick="toggleMenu()">☰</div>
+                <div class="dropdown-menu" id="mobile-menu">
+                    <a href="/">Home</a>
+                    <a href="/blogs">Blogs</a>
+                    <div class="auth-buttons" id="auth-section">
+                        <!-- Login/Dropdown will be injected dynamically -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cart Header with Title and Checkout Button -->
+    <div class="cart-header">
+        <button class="remove-selected-btn" id="remove-selected-btn">Remove Selected</button>
+        <h1 class="cart-title">Your Cart</h1>
+        <button class="checkout-btn" id="checkout-btn">Checkout <span class="total-price" id="total-price">Rs 0</span></button>
+    </div>
+
+    <!-- Main Cart Container -->
+    <div class="cart-container" id="cart-container">
+        <!-- Cart items will be inserted here dynamically -->
+    </div>
+
+    <script>
+        // Function to update the cart display with items, quantities, and checkboxes
+        function updateCartDisplay() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const container = document.getElementById('cart-container');
+            container.innerHTML = ''; // Clear the cart container
+
+            if (cart.length === 0) {
+                container.innerHTML = '<p>Your cart is empty</p>';
+            } else {
+                cart.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.classList.add('cart-item');
+                    itemDiv.innerHTML = `
+                        <input type="checkbox" class="item-checkbox" data-index="${index}" />
+                        <img src="${item.image}" alt="${item.name}" width="100">
+                        <h3>${item.name}</h3>
+                        <p>Price: Rs ${item.price}</p>
+                        <p>Quantity: 
+                            <button class="quantity-btn" data-action="decrease" data-index="${index}">-</button> 
+                            ${item.quantity} 
+                            <button class="quantity-btn" data-action="increase" data-index="${index}">+</button>
+                        </p>
+                    `;
+                    container.appendChild(itemDiv);
+                });
+            }
+
+            updateTotalPrice(); // Update the total price when the cart changes
+            updateCartCount(); // Update the cart item count
+        }
+
+        // Function to update total price of selected items
+        function updateTotalPrice() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalPriceElement = document.getElementById('total-price');
+            let totalPrice = 0;
+
+            // Get selected items by checking the checkboxes
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const index = checkbox.dataset.index;
+                    const item = cart[index]; // Get the selected item
+                    totalPrice += item.price * item.quantity; // Add the price of the selected item to total
+                }
+            });
+
+            totalPriceElement.textContent = `Rs ${totalPrice}`; // Update the total price display
+        }
+
+        // Update cart item count
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-item-count').textContent = itemCount;
+        }
+
+        // Event listener for removing selected items, updating quantity, and checkout
+        document.addEventListener('click', function (event) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Handle "Remove Selected" button
+            if (event.target.id === 'remove-selected-btn') {
+                const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+                const selectedIndexes = Array.from(checkboxes).map(checkbox => checkbox.dataset.index);
+
+                // Remove selected items from the cart
+                const updatedCart = cart.filter((item, index) => !selectedIndexes.includes(index.toString()));
+                localStorage.setItem('cart', JSON.stringify(updatedCart));
+                updateCartDisplay(); // Refresh the cart display
+            }
+
+            // Handle quantity increase or decrease
+            if (event.target.classList.contains('quantity-btn')) {
+                const index = event.target.getAttribute('data-index');
+                const action = event.target.getAttribute('data-action');
+
+                if (action === 'increase') {
+                    cart[index].quantity += 1; // Increase quantity
+                } else if (action === 'decrease' && cart[index].quantity > 1) {
+                    cart[index].quantity -= 1; // Decrease quantity
+                }
+
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartDisplay(); // Refresh the cart display
+            }
+
+            // Handle checkout button click
+            if (event.target.id === 'checkout-btn') {
+                const selectedItems = [];
+                const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+
+                // Add selected items to selectedItems array
+                checkboxes.forEach(checkbox => {
+                    const index = checkbox.dataset.index;
+                    selectedItems.push(cart[index]);
+                });
+
+                // Ensure at least one item is selected
+                if (selectedItems.length === 0) {
+                    alert('Please select at least one item to proceed to checkout.');
+                    return;
+                }
+
+                // Store selected items in localStorage for the checkout page
+                localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+
+                // Redirect to the checkout page
+                window.location.href = '/cartcheckout.html'; // Ensure this is the correct URL
+            }
+        });
+
+        // On page load, update the cart display and item count
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartDisplay();
+            updateCartCount();
+        });
+
+        // Event listener to update total price when checkboxes are toggled
+        document.addEventListener('change', function (event) {
+            if (event.target.classList.contains('item-checkbox')) {
+                updateTotalPrice();
+            }
+        });
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/items'); // API endpoint to fetch products
+                const items = await response.json();
+
+                const categories = categorizeProducts(items);
+                displayCategories(categories);
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        function categorizeProducts(items) {
+            const categories = {};
+
+            items.forEach((item) => {
+                if (!categories[item.category]) {
+                    categories[item.category] = [];
+                }
+                categories[item.category].push(item);
+            });
+
+            return categories;
+        }
+
+        // Function to handle carousel scrolling
+        function scrollCarousel(carouselId, direction) {
+            const carousel = document.getElementById(carouselId);
+            const cardWidth = carousel.querySelector('.product-card').offsetWidth + 10; // Adjust for card width + gap
+            const scrollAmount = direction * cardWidth; // Calculate scroll amount
+            carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' }); // Perform smooth scroll
+        }
+
+
+        // Function to dynamically display product categories with carousel
+        function displayCategories(categories) {
+            const container = document.querySelector('.categories-container');
+            container.innerHTML = ''; // Clear existing content
+
+            Object.keys(categories).forEach((category) => {
+                const categoryProducts = categories[category].slice(0, 8); // Maximum 8 products per category
+                const categoryDiv = document.createElement('div');
+                categoryDiv.classList.add('category-section');
+
+                categoryDiv.innerHTML = `
+            <div class="section-header">
+                <h3>${category}</h3>
+                <a href="/products?category=${encodeURIComponent(category)}" class="show-more">Show More</a>
+            </div>
+            <div class="carousel-container">
+                <div class="carousel" id="carousel-${category}">
+                    ${categoryProducts.map(createProductCard).join('')}
+                </div>
+            </div>
+        `;
+
+                container.appendChild(categoryDiv);
+            });
+
+            // Rebind add-to-cart buttons
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', addToCart);
+            });
+        }
+
+        // Function to generate HTML for each product card
+        function createProductCard(product) {
+            return `
+                <div class="product-card">
+                    <a href="/product/${product.slug}">
+                        <img src="${product.imageURL}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <p>₹${product.price}</p>
+                    </a>
+            <button class="add-to-cart" data-id="${product._id}" data-name="${product.name}" data-price="${product.price}" data-image="${product.imageURL}">
+                        Add to Cart
+                    </button>
+                </div>
+            `;
+        }
+
+
+        // Function to check login status and update UI
+        async function handleLogin() {
+            const response = await fetch('/login', { /* your login request details */ });
+            const data = await response.json();
+            if (data.success) {
+                // Login is successful
+                localStorage.setItem('userLoggedIn', 'true');
+                localStorage.setItem('userFirstName', data.firstName);
+                // Optionally, you can also store other info such as token or avatar
+                window.location.href = '/'; // Redirect to home page
+            } else {
+                // Handle login failure
+                alert('Login failed');
+            }
+        }
+
+        function checkLoginStatus() {
+            const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+            const userFirstName = localStorage.getItem('userFirstName') || 'User'; // Fallback if undefined
+            const authSectionNavbar = document.querySelector('.nav-actions #auth-section');
+            const authSectionDropdown = document.querySelector('#mobile-menu #auth-section');
+
+            let authContent = '';
+
+            if (userLoggedIn) {
+                authContent = `
+            <div class="dropdown">
+                <button class="user-button" onclick="toggleDropdown(event)">
+                    <img src="/images/avatar.jpeg" alt="User Avatar" class="user-avatar">
+                    ${userFirstName}
+                </button>
+                <ul class="dropdown-menu">
+                    <li onclick="redirectTo('/cart')">Cart</li>
+                    <li onclick="logoutUser()">Logout</li>
+                </ul>
+            </div>
+        `;
+            } else {
+                authContent = `
+            <a href="/sign-in" class="login">Log in</a>
+            <a href="/signup" class="signup">Sign up</a>
+        `;
+            }
+
+            // Inject content into both sections
+            authSectionNavbar.innerHTML = authContent;
+            authSectionDropdown.innerHTML = authContent;
+        }
+
+        // Toggle dropdown visibility on click
+        function toggleDropdown() {
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        }
+
+
+
+        function logoutUser() {
+            localStorage.removeItem('userLoggedIn');
+            localStorage.removeItem('userFirstName');
+            localStorage.removeItem('userAvatar');
+            window.location.href = '/';
+        }
+
+        function redirectTo(path) {
+            window.location.href = path;
+        }
+
+        function updateCartCount() {
+            const cartItemCount = document.getElementById('cart-item-count');
+            cartItemCount.classList.add('bounce');
+            setTimeout(() => cartItemCount.classList.remove('bounce'), 500);
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+            if (cartItemCount) cartItemCount.textContent = itemCount;
+        }
+
+        // Call on page load
+
+
+        function addToCart(event) {
+            function triggerCartUpdatedEvent() {
+                const event = new CustomEvent('cartUpdated');
+                document.dispatchEvent(event);
+            }
+
+            console.log('Add to Cart button clicked');
+
+            const userLoggedIn = localStorage.getItem('userLoggedIn');
+            if (!userLoggedIn) {
+                console.log('User not logged in, redirecting to sign-in...');
+                window.location.href = '/sign-in';
+                return;
+            }
+
+            const button = event.target;
+            console.log('Button Data:', {
+                id: button.getAttribute('data-id'),
+                name: button.getAttribute('data-name'),
+                price: button.getAttribute('data-price'),
+                image: button.getAttribute('data-image'),
+            });
+
+            const itemId = button.getAttribute('data-id');
+            const itemName = button.getAttribute('data-name');
+            const itemPrice = button.getAttribute('data-price');
+            const itemImage = button.getAttribute('data-image');
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingItem = cart.find(item => item.id === itemId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id: itemId, name: itemName, price: parseFloat(itemPrice), image: itemImage, quantity: 1 });
+            }
+
+            console.log('Updated Cart:', cart);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            triggerCartUpdatedEvent(); // Notify other pages
+
+
+            // Update button state to indicate item was added
+            updateButtonState(button, true);
+            // Function to send the cart item to the server
+            async function sendCartToServer(cartItem) {
+                const token = localStorage.getItem('token'); // JWT token
+
+                try {
+                    const response = await fetch('/api/cart/add-to-cart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`, // Include JWT token in the header
+                        },
+                        body: JSON.stringify(cartItem),
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert('Item added to cart successfully');
+                    } else {
+                        alert(result.message || 'Failed to add item to cart');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Something went wrong');
+                }
+            }
+
+        }
+
+        // Function to update button state
+        function updateButtonState(button, isInCart) {
+            if (isInCart) {
+                button.textContent = 'Added to Cart';
+                button.classList.add('added-to-cart'); // Optional: Add a class for styling
+                button.disabled = true; // Disable the button
+            } else {
+                button.textContent = 'Add to Cart';
+                button.classList.remove('added-to-cart');
+                button.disabled = false;
+            }
+        }
+
+        // Check cart on page load and update buttons
+        // Function to update button state based on cart content
+        function updateButtonsOnPageLoad() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const buttons = document.querySelectorAll('.add-to-cart');
+
+            buttons.forEach(button => {
+                const itemId = button.getAttribute('data-id');
+                const isInCart = cart.some(item => item.id === itemId);
+                if (isInCart) {
+                    button.textContent = 'Added to Cart';
+                    button.disabled = true; // Disable the button
+                    button.classList.add('added-to-cart'); // Optional styling class
+                } else {
+                    button.textContent = 'Add to Cart';
+                    button.disabled = false;
+                    button.classList.remove('added-to-cart');
+                }
+            });
+        }
+
+        // Call this function on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            updateButtonsOnPageLoad();
+        });
+
+        // Call on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts(); // Load products into the catalog
+            checkLoginStatus(); // Check user login status
+            updateCartCount(); // Update cart count in UI
+            updateButtonsOnPageLoad(); // Update button states based on cart
+        });
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+            const cartItemCount = document.getElementById('cart-item-count');
+            if (cartItemCount) cartItemCount.textContent = itemCount;
+        }
+
+        function toggleSearch() {
+            document.querySelector('.search-input').classList.toggle('visible');
+        }
+
+        function toggleMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('open');
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            checkLoginStatus();
+            updateCartCount();
+        });
+        //    Account listener
+        document.addEventListener('click', (event) => {
+            const dropdown = document.querySelector('.dropdown');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            if (dropdown && dropdownMenu) {
+                if (!dropdown.contains(event.target)) {
+                    // If the click is outside the dropdown, close the dropdown menu
+                    dropdownMenu.style.display = 'none';
+                }
+            }
+        });
+        //    mobile listener 
+        document.addEventListener('click', function (event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+
+            // Check if the click is outside the menu and hamburger
+            if (!mobileMenu.contains(event.target) && !hamburgerMenu.contains(event.target)) {
+                mobileMenu.classList.remove('open');
+            }
+        });
+
+        
+    </script>
+</body>
+
+</html>
